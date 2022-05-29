@@ -2,6 +2,7 @@
 
 import os 
 import spacy
+import nltk
 
 NER = spacy.load("en_core_web_sm")
 
@@ -18,6 +19,7 @@ def read_file(current):
 
                 raw_data = get_raw_file(elem[2])
                 entities_list = ner(raw_data)
+                # TODO: here should be the tags normalizer
                 new_ent_list = split_ner(entities_list)
 
                 for line in data_list:
@@ -54,26 +56,25 @@ def get_raw_file(file_list):
 def ner(raw_text):
 
     '''takes a str of raw text and by using SpaCy returns a list
-    of tuples of group of words and tagged named entities'''
+    of tuples with words and given to them tags'''
 
+    tags_list = ["PERSON", "GPE", "LOC", "ORG"]
     text = NER(raw_text)
-    entities_list = [(word.text, word.label_) for word in text.ents]
+    entities_list = [(word.text, word.label_) for word in text.ents
+                     if word.label_ in tags_list]
     
     return entities_list
 
 def split_ner(entities_list):
 
     '''takes a list of tuples, goes through each tuple
-    and if there are more than 1 word in a tuple splits them
-    into different tuples with the same tags, returns a list
-    of new tuples'''
-
-    # TODO: add REGEX for special cases of word phrases ( i.e. "word's", "yo-yo")
+    and if there are more than 1 word in a tuple tokenizes it
+    and returns a list separated tuples with related tags'''
 
     new_ent_list = []
     for (word_phrase, label) in entities_list:
         if " " in word_phrase:
-            word_list = word_phrase.split()
+            word_list = nltk.word_tokenize(word_phrase)
             for word in word_list:
                 new_ent_list.append((word, label))
         else:
