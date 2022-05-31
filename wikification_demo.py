@@ -39,9 +39,12 @@ def read_file(current):
                     else:
                         # for lines that don't contain word and pos tag
                         pos_ent_data_list.append(line_list + ["bbb"])
-                    
-                #for i in pos_ent_data_list:
-                    #print(i)
+
+                
+                # TODO: UNCOMMENT IT TO SEE THE FULL INPUT
+                # unabled it for the wikification func test  
+                '''for i in pos_ent_data_list:
+                    print(i)'''
 
 
 def wikification(entities_list):
