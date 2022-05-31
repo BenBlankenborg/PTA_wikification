@@ -58,7 +58,7 @@ def ner(raw_text):
     '''takes a str of raw text and by using SpaCy returns a list
     of tuples with words and given to them tags'''
 
-    tags_list = ["PERSON", "GPE", "LOC", "ORG"]
+    tags_list = ["PERSON", "GPE", "LOC", "ORG", "WORK_OF_ART"]
     text = NER(raw_text)
     entities_list = [(word.text, word.label_) for word in text.ents
                      if word.label_ in tags_list]
