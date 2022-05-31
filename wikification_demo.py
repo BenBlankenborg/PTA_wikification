@@ -3,6 +3,7 @@
 import os 
 import spacy
 import nltk
+import wikipedia
 
 NER = spacy.load("en_core_web_sm")
 
@@ -19,6 +20,7 @@ def read_file(current):
 
                 raw_data = get_raw_file(elem[2])
                 entities_list = ner(raw_data)
+                wikification(entities_list)
                 # TODO: here should be the tags normalizer
                 new_ent_list = split_ner(entities_list)
 
@@ -38,8 +40,27 @@ def read_file(current):
                         # for lines that don't contain word and pos tag
                         pos_ent_data_list.append(line_list + ["bbb"])
                     
-                for i in pos_ent_data_list:
-                    print(i)
+                #for i in pos_ent_data_list:
+                    #print(i)
+
+
+def wikification(entities_list):
+
+    # TODO: for words that have no wikipedia page wiki suggests wrong stuff
+    # Carolyn Weaver has no page => wiki suggests and prints Carolyn Jones
+    wiki_list = []
+
+    for (word, label) in entities_list:
+        for term in wikipedia.search(word, results=1):
+            if term != "":
+                try:
+                    wiki_list.append((word, label, wikipedia.page(term).url))
+                except wikipedia.exceptions.PageError:
+                    if term == "New York City":
+                        # because wiki module bitches with new york city
+                        wiki_list.append((word, label, "https://en.wikipedia.org/wiki/New_York_City"))
+        
+    print(wiki_list)
 
 
 def get_raw_file(file_list):
