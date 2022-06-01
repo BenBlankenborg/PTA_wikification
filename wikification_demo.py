@@ -4,6 +4,9 @@ import os
 import spacy
 import nltk
 import wikipedia
+from nltk.stem.wordnet import WordNetLemmatizer
+from nltk.corpus import wordnet
+lemmatizer = WordNetLemmatizer()
 
 NER = spacy.load("en_core_web_sm")
 
@@ -43,9 +46,22 @@ def read_file(current):
                 
                 # TODO: UNCOMMENT IT TO SEE THE FULL INPUT
                 # unabled it for the wikification func test  
-                '''for i in pos_ent_data_list:
-                    print(i)'''
+                for i in pos_ent_data_list:
+                    print(check_non_name_tags(i))
 
+def check_non_name_tags(l):
+    """This function takes input of a word and its information
+    as formatted previously, and assigns it an ANI or SPO 
+    tag if the word is an animal or sport."""
+    word = lemmatizer.lemmatize(l[3])
+    w_syns = wordnet.synsets(word)
+    if len(w_syns) > 0 and l[5] == 'none':
+        if hypernymOf(w_syns[0], wordnet.synsets('animal')[0]) == True:
+            l[5] = 'ANI'
+        if hypernymOf(w_syns[0], wordnet.synsets('sport')[0]) == True:
+            l[5] = 'SPO'
+    return l
+    
 
 def wikification(entities_list):
 
@@ -75,6 +91,20 @@ def get_raw_file(file_list):
         if filename == "en.raw":
             with open(filename, encoding="utf-8") as f:
                 return f.read()
+                
+
+def hypernymOf(synset1, synset2):
+    """ Returns True if synset2 is a hypernym of
+    synset1, or if they are the same synset.
+    Returns False otherwise. """
+    if synset1 == synset2:
+         return True
+    for hypernym in synset1.hypernyms():
+         if synset2 == hypernym:
+             return True
+         if hypernymOf(hypernym, synset2):
+            return True
+    return False
 
 
 def ner(raw_text):
@@ -111,6 +141,7 @@ def main():
     current = os.getcwd()
     read_file(current)
 
+       
    
 if __name__ == "__main__": 
     main()
