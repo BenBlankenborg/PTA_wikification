@@ -23,7 +23,6 @@ def read_file(current):
 
                 raw_data = get_raw_file(elem[2])
                 entities_list = ner(raw_data)
-                wikification(entities_list)
                 # TODO: here should be the tags normalizer
                 new_ent_list = split_ner(entities_list)
 
@@ -42,25 +41,27 @@ def read_file(current):
                     else:
                         # for lines that don't contain word and pos tag
                         pos_ent_data_list.append(line_list + ["bbb"])
-
+                
                 
                 # TODO: UNCOMMENT IT TO SEE THE FULL INPUT
                 # unabled it for the wikification func test  
-                for i in pos_ent_data_list:
-                    print(check_non_name_tags(i))
+                for line in pos_ent_data_list:
+                    print(check_non_name_tags(line))
+                
 
-def check_non_name_tags(l):
+def check_non_name_tags(line):
     """This function takes input of a word and its information
     as formatted previously, and assigns it an ANI or SPO 
     tag if the word is an animal or sport."""
-    word = lemmatizer.lemmatize(l[3])
+    word = lemmatizer.lemmatize(line[3])
     w_syns = wordnet.synsets(word)
-    if len(w_syns) > 0 and l[5] == 'none':
+    if len(w_syns) > 0 and line[5] == 'none':
         if hypernymOf(w_syns[0], wordnet.synsets('animal')[0]) == True:
-            l[5] = 'ANI'
+            line[5] = 'ANI'
         if hypernymOf(w_syns[0], wordnet.synsets('sport')[0]) == True:
-            l[5] = 'SPO'
-    return l
+            line[5] = 'SPO'
+    return line
+
     
 
 def wikification(entities_list):
