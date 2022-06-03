@@ -1,4 +1,4 @@
-# This program was made to test the working code on a single dir (d0021)
+# This program was made to test the working code on a single dir (d0208)
 
 import os 
 import spacy
@@ -11,7 +11,7 @@ lemmatizer = WordNetLemmatizer()
 NER = spacy.load("en_core_web_sm")
 
 def read_file(current):
-    for elem in os.walk(current + "/dev/d0021"):
+    for elem in os.walk(current + "/dev/d0208"):
         for filename in elem[2]:
 
             pos_ent_data_list = []
@@ -23,16 +23,19 @@ def read_file(current):
 
                 raw_data = get_raw_file(elem[2])
                 entities_list = ner(raw_data)
-                # TODO: here should be the tags normalizer
-                new_ent_list = split_ner(entities_list)
+                ani_spo_ent_list = find_ner_bigrams(raw_data)
+                if len(ani_spo_ent_list) != 0:
+                    entities_list += ani_spo_ent_list # list contains (word, tag) tuples
+                ent_wiki_list = wikification(entities_list) # list contains (word, tag, link) tuples
+                new_ent_list = split_ner(ent_wiki_list)
 
                 for line in data_list:
                     line_list = line.split()
                     if len(line_list) == 5:
-                        for (word, label) in new_ent_list:
+                        for (word, label, link) in new_ent_list:
                             ner_list = []
                             if word == line_list[3]:
-                                ner_list = line_list + [label]
+                                ner_list = line_list + [label] + [link]
                                 pos_ent_data_list.append(ner_list)
                                 break
                         if not ner_list:
@@ -41,34 +44,17 @@ def read_file(current):
                     else:
                         # for lines that don't contain word and pos tag
                         pos_ent_data_list.append(line_list + ["bbb"])
-                
-                
-                # TODO: UNCOMMENT IT TO SEE THE FULL INPUT
-                # unabled it for the wikification func test
+
+
                 checked_pos_ent_data_list = []  
                 for line in pos_ent_data_list:
                     checked_line = (check_non_name_tags(line))
-                    checked_pos_ent_data_list.append(checked_line)
+                    wiki_line = wikification_2(checked_line)
+                    checked_pos_ent_data_list.append(wiki_line)
                 
-                print(checked_pos_ent_data_list)
+                for i in checked_pos_ent_data_list:
+                    print(i)
 
-                
-
-def check_non_name_tags(line):
-
-    """This function takes input of a word and its information
-    as formatted previously, and assigns it an ANI or SPO 
-    tag if the word is an animal or sport."""
-    word = lemmatizer.lemmatize(line[3])
-    w_syns = wordnet.synsets(word)
-    if len(w_syns) > 0 and line[5] == 'none':
-        if hypernymOf(w_syns[0], wordnet.synsets('animal')[0]) == True:
-            line[5] = 'ANI'
-        if hypernymOf(w_syns[0], wordnet.synsets('sport')[0]) == True:
-            line[5] = 'SPO'
-    return line
-
-    
 
 def wikification(entities_list):
 
@@ -86,7 +72,56 @@ def wikification(entities_list):
                         # because wiki module bitches with new york city
                         wiki_list.append((word, label, "https://en.wikipedia.org/wiki/New_York_City"))
         
-    print(wiki_list)
+    return wiki_list
+
+
+def wikification_2(line):
+
+    """This function takes a list and adds a wikipedia
+    link if the list contains one of the NER tags"""
+
+    if line[5] == "ANI" or line[5] == "SPO":
+        for term in wikipedia.search(line[3], results=1):
+            print(term)
+            if term != "":
+                line.append("https://en.wikipedia.org/wiki/" + str(term))
+    
+    return line
+
+
+def check_non_name_tags(line):
+
+    """This function takes input of a word and its information
+    as formatted previously, and assigns it an ANI or SPO 
+    tag if the word is an animal or sport."""
+    word = lemmatizer.lemmatize(line[3])
+    w_syns = wordnet.synsets(word)
+    if len(w_syns) > 0 and line[5] == 'none':
+        if hypernymOf(w_syns[0], wordnet.synsets('animal')[0]):
+            line[5] = 'ANI'
+        if hypernymOf(w_syns[0], wordnet.synsets('sport')[0]):
+            line[5] = 'SPO'
+    
+    return line
+
+
+def find_ner_bigrams(raw_text):
+
+    bigrams_ner_list = []
+    tokens = nltk.word_tokenize(raw_text)
+    bigrams_list = list(nltk.bigrams(tokens))
+    for bigram in bigrams_list:
+        bigram_str = ' '.join(bigram)
+        lemma = lemmatizer.lemmatize(bigram_str)
+        lemma_list = lemma.split()
+        bigram_synset = wordnet.synsets(lemma_list[0] + "_" + lemma_list[1])
+        if len(bigram_synset) > 0:
+            if hypernymOf(bigram_synset[0], wordnet.synsets('animal')[0]):
+                bigrams_ner_list.append((bigram_str, 'ANI'))
+            if hypernymOf(bigram_synset[0], wordnet.synsets('sport')[0]):
+                bigrams_ner_list.append((bigram_str, 'SPO'))
+    
+    return bigrams_ner_list
 
 
 def get_raw_file(file_list):
@@ -133,13 +168,13 @@ def split_ner(entities_list):
     and returns a list separated tuples with related tags'''
 
     new_ent_list = []
-    for (word_phrase, label) in entities_list:
+    for (word_phrase, label, link) in entities_list:
         if " " in word_phrase:
             word_list = nltk.word_tokenize(word_phrase)
             for word in word_list:
-                new_ent_list.append((word, label))
+                new_ent_list.append((word, label, link))
         else:
-            new_ent_list.append((word_phrase,label))
+            new_ent_list.append((word_phrase, label, link))
     
     return new_ent_list
 
