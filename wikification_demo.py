@@ -44,12 +44,18 @@ def read_file(current):
                 
                 
                 # TODO: UNCOMMENT IT TO SEE THE FULL INPUT
-                # unabled it for the wikification func test  
+                # unabled it for the wikification func test
+                checked_pos_ent_data_list = []  
                 for line in pos_ent_data_list:
-                    print(check_non_name_tags(line))
+                    checked_line = (check_non_name_tags(line))
+                    checked_pos_ent_data_list.append(checked_line)
+                
+                print(checked_pos_ent_data_list)
+
                 
 
 def check_non_name_tags(line):
+
     """This function takes input of a word and its information
     as formatted previously, and assigns it an ANI or SPO 
     tag if the word is an animal or sport."""
