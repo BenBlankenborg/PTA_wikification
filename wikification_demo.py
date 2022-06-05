@@ -199,7 +199,8 @@ def split_ner(entities_list):
         if " " in word_phrase:
             word_list = nltk.word_tokenize(word_phrase)
             for word in word_list:
-                new_ent_list.append((word, label, link))
+                if not word == 'the': 
+                    new_ent_list.append((word, label, link))
         else:
             new_ent_list.append((word_phrase, label, link))
     
