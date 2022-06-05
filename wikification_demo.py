@@ -6,12 +6,13 @@ import nltk
 import wikipedia
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.corpus import wordnet
+import random
 lemmatizer = WordNetLemmatizer()
 
 NER = spacy.load("en_core_web_sm")
 
 def read_file(current):
-    for elem in os.walk(current + "/dev/d0208"):
+    for elem in os.walk(current + "/dev/d0021"):
         for filename in elem[2]:
 
             pos_ent_data_list = []
@@ -26,8 +27,13 @@ def read_file(current):
                 ani_spo_ent_list = find_ner_bigrams(raw_data)
                 if len(ani_spo_ent_list) != 0:
                     entities_list += ani_spo_ent_list # list contains (word, tag) tuples
-                ent_wiki_list = wikification(entities_list) # list contains (word, tag, link) tuples
+                gpe_list = gpe_check(entities_list)
+
+                ent_wiki_list = wikification(gpe_list) # list contains (word, tag, link) tuples
+                
+                # THIS BITCH EMPTY YEET
                 new_ent_list = split_ner(ent_wiki_list)
+                
 
                 for line in data_list:
                     line_list = line.split()
@@ -54,6 +60,27 @@ def read_file(current):
                 
                 for i in checked_pos_ent_data_list:
                     print(i)
+
+
+def gpe_check(entities_list):
+    new_ent_list = []
+    for ent in entities_list:
+        if ent[1] == "GPE":
+            try:
+                wiki_sent = wikipedia.summary(ent[0], sentences=1).lower()
+                wiki_sent_list = nltk.word_tokenize(wiki_sent)
+                if "city" in wiki_sent_list or "town" in wiki_sent_list:
+                    new_ent_list.append((ent[0], "CIT"))
+                elif "country" in wiki_sent_list or "state" in wiki_sent_list:
+                    new_ent_list.append((ent[0], "COU"))
+                else:
+                    new_ent_list.append((ent[0], random.choice("CIT", "COU")))
+            except wikipedia.exceptions.PageError:
+                new_ent_list.append((ent[0], random.choice("CIT", "COU")))
+        else:
+            new_ent_list.append(ent)
+    
+    return new_ent_list
 
 
 def wikification(entities_list):
