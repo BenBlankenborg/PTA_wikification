@@ -52,7 +52,7 @@ def read_file(current, filename):
                                 break
                         if not ner_list:
                             # for words that are not recognised by spacy
-                            pos_ent_data_list.append(line_list + ["none"])
+                            pos_ent_data_list.append(line_list + [" "])
                     else:
                         # for lines that don't contain word and pos tag
                         # TODO: have we ever encountered those lines?
@@ -158,7 +158,7 @@ def check_non_name_tags(line):
 
     word = lemmatizer.lemmatize(line[3])
     w_syns = wordnet.synsets(word)
-    if len(w_syns) > 0 and line[5] == 'none':
+    if len(w_syns) > 0 and line[5] == " ":
         if hypernymOf(w_syns[0], wordnet.synsets('animal')[0]):
             line[5] = 'ANI'
         if hypernymOf(w_syns[0], wordnet.synsets('sport')[0]):
