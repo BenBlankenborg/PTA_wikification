@@ -211,7 +211,7 @@ def split_ner(entities_list):
         if " " in word_phrase:
             word_list = nltk.word_tokenize(word_phrase)
             for word in word_list:
-                if word != "the" and word != "The" and word != "'s" and word != "of": 
+                if word != "the" and word != "The" and word != "'s" and word != "of" and word != "and": 
                     new_ent_list.append((word, label, link))
         else:
             new_ent_list.append((word_phrase, label, link))
