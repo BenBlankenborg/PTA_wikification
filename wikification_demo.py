@@ -12,7 +12,7 @@ lemmatizer = WordNetLemmatizer()
 NER = spacy.load("en_core_web_sm")
 
 def read_file(current):
-    for elem in os.walk(current + "/dev/d0055"):
+    for elem in os.walk(current + "/dev/d0691"):
         for filename in elem[2]:
 
             pos_ent_data_list = []
@@ -211,7 +211,7 @@ def split_ner(entities_list):
         if " " in word_phrase:
             word_list = nltk.word_tokenize(word_phrase)
             for word in word_list:
-                if word != "the" and word != "'s": 
+                if word != "the" and word != "The" and word != "'s" and word != "of": 
                     new_ent_list.append((word, label, link))
         else:
             new_ent_list.append((word_phrase, label, link))
