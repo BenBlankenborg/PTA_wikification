@@ -27,12 +27,12 @@ def read_file(current):
                 ani_spo_ent_list = find_ner_bigrams(raw_data)
                 if len(ani_spo_ent_list) != 0:
                     entities_list += ani_spo_ent_list # list contains (word, tag) tuples
-                gpe_list = gpe_check(entities_list)
+                gpe_list = tags_correction(entities_list)
 
                 ent_wiki_list = wikification(gpe_list) # list contains (word, tag, link) tuples
-                
                 # THIS BITCH EMPTY YEET
                 new_ent_list = split_ner(ent_wiki_list)
+
                 
 
                 for line in data_list:
@@ -62,7 +62,7 @@ def read_file(current):
                     print(i)
 
 
-def gpe_check(entities_list):
+def tags_correction(entities_list):
     new_ent_list = []
     for ent in entities_list:
         if ent[1] == "GPE":
@@ -77,6 +77,12 @@ def gpe_check(entities_list):
                     new_ent_list.append((ent[0], random.choice("CIT", "COU")))
             except wikipedia.exceptions.PageError:
                 new_ent_list.append((ent[0], random.choice("CIT", "COU")))
+        elif ent[1] == "LOC":
+            new_ent_list.append((ent[0], "NAT"))
+        elif ent[1] == "WORK_OF_ART":
+            new_ent_list.append((ent[0], "ENT"))
+        elif ent[1] == "PERSON":
+            new_ent_list.append((ent[0], "PER"))
         else:
             new_ent_list.append(ent)
     
@@ -95,8 +101,8 @@ def wikification(entities_list):
                 try:
                     wiki_list.append((word, label, wikipedia.page(term).url))
                 except wikipedia.exceptions.PageError:
+                    # TODO: probably change to a more general exception
                     if term == "New York City":
-                        # because wiki module bitches with new york city
                         wiki_list.append((word, label, "https://en.wikipedia.org/wiki/New_York_City"))
         
     return wiki_list
@@ -109,7 +115,6 @@ def wikification_2(line):
 
     if line[5] == "ANI" or line[5] == "SPO":
         for term in wikipedia.search(line[3], results=1):
-            print(term)
             if term != "":
                 line.append("https://en.wikipedia.org/wiki/" + str(term))
     
@@ -134,6 +139,7 @@ def check_non_name_tags(line):
 
 def find_ner_bigrams(raw_text):
 
+    # we do this to find tags that were not automatically given by spacy
     bigrams_ner_list = []
     tokens = nltk.word_tokenize(raw_text)
     bigrams_list = list(nltk.bigrams(tokens))
@@ -199,7 +205,7 @@ def split_ner(entities_list):
         if " " in word_phrase:
             word_list = nltk.word_tokenize(word_phrase)
             for word in word_list:
-                if not word == 'the': 
+                if word != "the" and word != "'s": 
                     new_ent_list.append((word, label, link))
         else:
             new_ent_list.append((word_phrase, label, link))
