@@ -55,9 +55,10 @@ def read_file(current, filename):
                     checked_line = (check_non_name_tags(line))
                     wiki_line = wikification_2(checked_line)
                     checked_pos_ent_data_list.append(wiki_line)
-
-                for i in checked_pos_ent_data_list:
-                    print(i)
+                with open('en.tok.off.pos.ent', 'w') as out_file:
+                    sys.stdout = out_file
+                    for i in checked_pos_ent_data_list:
+                         print(' '.join(i))
 
 
 def tags_correction(entities_list):
