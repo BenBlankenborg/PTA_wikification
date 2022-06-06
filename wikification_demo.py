@@ -12,7 +12,6 @@ lemmatizer = WordNetLemmatizer()
 NER = spacy.load("en_core_web_sm")
 
 def read_file(current):
-<<<<<<< HEAD
     for ent in os.walk(current+ "/dev"):
         for elem in os.walk(ent[0]):
             for filename in elem[2]:
@@ -130,11 +129,11 @@ def wikification_2(line):
     This function takes a list and adds a wikipedia
     link if the list contains one of the NER tags.
     """
-
-    if line[5] == "ANI" or line[5] == "SPO":
-        for term in wikipedia.search(line[3], results=1):
-             if term != "":
-                 line.append("https://en.wikipedia.org/wiki/" + str(term))
+    if len(line) > 4:
+        if line[5] == "ANI" or line[5] == "SPO":
+            for term in wikipedia.search(line[3], results=1):
+                 if term != "":
+                     line.append("https://en.wikipedia.org/wiki/" + str(term))
     return line
 
 
