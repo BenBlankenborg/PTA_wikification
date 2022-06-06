@@ -12,17 +12,16 @@ lemmatizer = WordNetLemmatizer()
 NER = spacy.load("en_core_web_sm")
 
 def read_file(current):
+<<<<<<< HEAD
     for ent in os.walk(current+ "/dev"):
         for elem in os.walk(ent[0]):
             for filename in elem[2]:
-
                 pos_ent_data_list = []
 
                 os.chdir(elem[0])
                 if filename == "en.tok.off.pos":
                     with open(filename, encoding="utf-8") as f1:
                         data_list = f1.readlines()
-
                     raw_data = get_raw_file(elem[2])
                     entities_list = ner(raw_data)
                     ani_spo_ent_list = find_ner_bigrams(raw_data)
@@ -30,11 +29,9 @@ def read_file(current):
                         entities_list += ani_spo_ent_list # list contains (word, tag) tuples
                     gpe_list = tags_correction(entities_list)
 
-                    ent_wiki_list = wikification(gpe_list) # list contains (word, tag, link) tuples
-                    # THIS BITCH EMPTY YEET
-                    new_ent_list = split_ner(ent_wiki_list)
 
-                
+                    ent_wiki_list = wikification(gpe_list) # list contains (word, tag, link) tuples
+                    new_ent_list = split_ner(ent_wiki_list)
 
                     for line in data_list:
                         line_list = line.split()
@@ -50,6 +47,7 @@ def read_file(current):
                                 pos_ent_data_list.append(line_list + ["none"])
                         else:
                             # for lines that don't contain word and pos tag
+                            # TODO: have we ever encountered those lines?
                             pos_ent_data_list.append(line_list + ["bbb"])
 
 
@@ -58,12 +56,19 @@ def read_file(current):
                         checked_line = (check_non_name_tags(line))
                         wiki_line = wikification_2(checked_line)
                         checked_pos_ent_data_list.append(wiki_line)
-                
+
                     for i in checked_pos_ent_data_list:
                         print(i)
 
 
 def tags_correction(entities_list):
+
+    """
+    Takes a list of tuples, goes through each tuples and
+    corrects specific tags values, then returns a list with
+    changed tuples.
+    """
+
     new_ent_list = []
     for ent in entities_list:
         if ent[1] == "GPE":
@@ -93,8 +98,12 @@ def tags_correction(entities_list):
 
 def wikification(entities_list):
 
-    # TODO: for words that have no wikipedia page wiki suggests wrong stuff
-    # Carolyn Weaver has no page => wiki suggests and prints Carolyn Jones
+    """
+    Takes a list of tuples, goes through each tuple,
+    finds a wikipedia link for each term in a tuple,
+    then adds the link into a new tuple and returns
+    all tuples in a list. 
+    """
     wiki_list = []
 
     for (word, label) in entities_list:
@@ -117,8 +126,10 @@ def wikification(entities_list):
 
 def wikification_2(line):
 
-    """This function takes a list and adds a wikipedia
-    link if the list contains one of the NER tags"""
+    """
+    This function takes a list and adds a wikipedia
+    link if the list contains one of the NER tags.
+    """
 
     if line[5] == "ANI" or line[5] == "SPO":
         for term in wikipedia.search(line[3], results=1):
@@ -129,9 +140,12 @@ def wikification_2(line):
 
 def check_non_name_tags(line):
 
-    """This function takes input of a word and its information
+    """
+    This function takes input of a word and its information
     as formatted previously, and assigns it an ANI or SPO 
-    tag if the word is an animal or sport."""
+    tag if the word is an animal or sport.
+    """
+
     word = lemmatizer.lemmatize(line[3])
     w_syns = wordnet.synsets(word)
     if len(w_syns) > 0 and line[5] == 'none':
@@ -144,6 +158,13 @@ def check_non_name_tags(line):
 
 
 def find_ner_bigrams(raw_text):
+
+    """
+    Takes a string of text, slides it into bigrams,
+    searches for specific entities by looking at the
+    hypernyms of each bigram and returns a list of all
+    found bigrams and their entity tags.
+    """
 
     # we do this to find tags that were not automatically given by spacy
     bigrams_ner_list = []
@@ -165,8 +186,10 @@ def find_ner_bigrams(raw_text):
 
 def get_raw_file(file_list):
 
-    '''opens a raw file in the same directory
-    and returns the text as a string'''
+    """
+    Opens a raw file in the same directory
+    as used .pos file and returns the data as a string.
+    """
 
     for filename in file_list:
         if filename == "en.raw":
@@ -175,9 +198,13 @@ def get_raw_file(file_list):
                 
 
 def hypernymOf(synset1, synset2):
-    """ Returns True if synset2 is a hypernym of
+
+    """
+    Returns True if synset2 is a hypernym of
     synset1, or if they are the same synset.
-    Returns False otherwise. """
+    Returns False otherwise.
+    """
+
     if synset1 == synset2:
          return True
     for hypernym in synset1.hypernyms():
@@ -190,8 +217,10 @@ def hypernymOf(synset1, synset2):
 
 def ner(raw_text):
 
-    '''takes a str of raw text and by using SpaCy returns a list
-    of tuples with words and given to them tags'''
+    """
+    Takes a str of raw text and by using SpaCy returns a list
+    of tuples with words and given to them entity tags.
+    """
 
     tags_list = ["PERSON", "GPE", "LOC", "ORG", "WORK_OF_ART"]
     text = NER(raw_text)
@@ -202,16 +231,18 @@ def ner(raw_text):
 
 def split_ner(entities_list):
 
-    '''takes a list of tuples, goes through each tuple
+    """
+    Takes a list of tuples, goes through each tuple
     and if there are more than 1 word in a tuple tokenizes it
-    and returns a list separated tuples with related tags'''
+    and returns a list separated tuples with related entity tags.
+    """
 
     new_ent_list = []
     for (word_phrase, label, link) in entities_list:
         if " " in word_phrase:
             word_list = nltk.word_tokenize(word_phrase)
             for word in word_list:
-                if word != "the" and word != "The" and word != "'s" and word != "of" and word != "and": 
+                if word != "the" and word != "'s": 
                     new_ent_list.append((word, label, link))
         else:
             new_ent_list.append((word_phrase, label, link))
