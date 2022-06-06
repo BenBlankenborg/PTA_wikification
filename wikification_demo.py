@@ -1,6 +1,13 @@
-# This program was made to test the working code on a single dir (d0208)
+# Filename: wikification.py
+# Date: 7-6-2022
+# Authors: Katja Kamyshanova, Ben Blankenborg, Myrthe van der Veen
+# This program contains a Wikification system.
+# The program produce some annotated data, including the entities:
+# Country/State (COU), City/Town (CIT), Natural places (NAT), Person (PER),
+# Organization (ORG), Animal (ANI), Sport (SPO), Entertainment (ENT)
+# and their corresponding Wikipedia links.
 
-import os 
+import os
 import spacy
 import nltk
 import wikipedia
@@ -11,6 +18,7 @@ import sys
 lemmatizer = WordNetLemmatizer()
 
 NER = spacy.load("en_core_web_sm")
+
 
 def read_file(current, filename):
     for elem in os.walk(current + '/dev/' + filename):
@@ -25,11 +33,12 @@ def read_file(current, filename):
                 entities_list = ner(raw_data)
                 ani_spo_ent_list = find_ner_bigrams(raw_data)
                 if len(ani_spo_ent_list) != 0:
-                    entities_list += ani_spo_ent_list # list contains (word, tag) tuples
+                    # list contains (word, tag) tuples
+                    entities_list += ani_spo_ent_list
                 gpe_list = tags_correction(entities_list)
 
-
-                ent_wiki_list = wikification(gpe_list) # list contains (word, tag, link) tuples
+                # list contains (word, tag, link) tuples
+                ent_wiki_list = wikification(gpe_list)
                 new_ent_list = split_ner(ent_wiki_list)
 
                 for line in data_list:
@@ -49,8 +58,7 @@ def read_file(current, filename):
                         # TODO: have we ever encountered those lines?
                         pos_ent_data_list.append(line_list + ["bbb"])
 
-
-                checked_pos_ent_data_list = []  
+                checked_pos_ent_data_list = []
                 for line in pos_ent_data_list:
                     checked_line = (check_non_name_tags(line))
                     wiki_line = wikification_2(checked_line)
@@ -58,7 +66,7 @@ def read_file(current, filename):
                 with open('en.tok.off.pos.ent', 'w') as out_file:
                     sys.stdout = out_file
                     for i in checked_pos_ent_data_list:
-                         print(' '.join(i))
+                        print(' '.join(i))
 
 
 def tags_correction(entities_list):
@@ -92,7 +100,7 @@ def tags_correction(entities_list):
             new_ent_list.append((ent[0], "PER"))
         else:
             new_ent_list.append(ent)
-    
+
     return new_ent_list
 
 
@@ -102,7 +110,7 @@ def wikification(entities_list):
     Takes a list of tuples, goes through each tuple,
     finds a wikipedia link for each term in a tuple,
     then adds the link into a new tuple and returns
-    all tuples in a list. 
+    all tuples in a list.
     """
     wiki_list = []
 
@@ -115,12 +123,14 @@ def wikification(entities_list):
                         wikipedia.exceptions.DisambiguationError):
                     # TODO: probably change to a more general exception
                     if term == "New York City":
-                        wiki_list.append((word, label, "https://en.wikipedia.org/wiki/New_York_City"))
+                        wiki_list.append((word, label,
+                                         "https://en.wikipedia.org/wiki/New_York_City"))
                     else:
                         # TODO: use word ipv term?
                         term_ = "_".join(nltk.word_tokenize(term))
-                        wiki_list.append((word, label, "https://en.wikipedia.org/wiki/" + term_))
-        
+                        wiki_list.append((word, label,
+                                         "https://en.wikipedia.org/wiki/" + term_))
+
     return wiki_list
 
 
@@ -133,8 +143,8 @@ def wikification_2(line):
     if len(line) > 4:
         if line[5] == "ANI" or line[5] == "SPO":
             for term in wikipedia.search(line[3], results=1):
-                 if term != "":
-                     line.append("https://en.wikipedia.org/wiki/" + str(term))
+                if term != "":
+                    line.append("https://en.wikipedia.org/wiki/" + str(term))
     return line
 
 
@@ -142,7 +152,7 @@ def check_non_name_tags(line):
 
     """
     This function takes input of a word and its information
-    as formatted previously, and assigns it an ANI or SPO 
+    as formatted previously, and assigns it an ANI or SPO
     tag if the word is an animal or sport.
     """
 
@@ -153,7 +163,7 @@ def check_non_name_tags(line):
             line[5] = 'ANI'
         if hypernymOf(w_syns[0], wordnet.synsets('sport')[0]):
             line[5] = 'SPO'
-    
+
     return line
 
 
@@ -180,7 +190,7 @@ def find_ner_bigrams(raw_text):
                 bigrams_ner_list.append((bigram_str, 'ANI'))
             if hypernymOf(bigram_synset[0], wordnet.synsets('sport')[0]):
                 bigrams_ner_list.append((bigram_str, 'SPO'))
-    
+
     return bigrams_ner_list
 
 
@@ -195,7 +205,7 @@ def get_raw_file(file_list):
         if filename == "en.raw":
             with open(filename, encoding="utf-8") as f:
                 return f.read()
-                
+
 
 def hypernymOf(synset1, synset2):
 
@@ -206,11 +216,11 @@ def hypernymOf(synset1, synset2):
     """
 
     if synset1 == synset2:
-         return True
+        return True
     for hypernym in synset1.hypernyms():
-         if synset2 == hypernym:
-             return True
-         if hypernymOf(hypernym, synset2):
+        if synset2 == hypernym:
+            return True
+        if hypernymOf(hypernym, synset2):
             return True
     return False
 
@@ -226,8 +236,9 @@ def ner(raw_text):
     text = NER(raw_text)
     entities_list = [(word.text, word.label_) for word in text.ents
                      if word.label_ in tags_list]
-    
+
     return entities_list
+
 
 def split_ner(entities_list):
 
@@ -242,11 +253,12 @@ def split_ner(entities_list):
         if " " in word_phrase:
             word_list = nltk.word_tokenize(word_phrase)
             for word in word_list:
-                if word != "the" and word != "'s": 
+                if (word != "the" and word != "'s" and
+                   word != "The" and word != "of"):
                     new_ent_list.append((word, label, link))
         else:
             new_ent_list.append((word_phrase, label, link))
-    
+
     return new_ent_list
 
 
@@ -255,7 +267,6 @@ def main():
     current = os.getcwd()
     read_file(current, filename)
 
-       
-   
-if __name__ == "__main__": 
+
+if __name__ == "__main__":
     main()
