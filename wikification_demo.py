@@ -12,7 +12,7 @@ lemmatizer = WordNetLemmatizer()
 NER = spacy.load("en_core_web_sm")
 
 def read_file(current):
-    for elem in os.walk(current + "/dev/d0021"):
+    for elem in os.walk(current + "/dev/d0055"):
         for filename in elem[2]:
 
             pos_ent_data_list = []
@@ -74,9 +74,10 @@ def tags_correction(entities_list):
                 elif "country" in wiki_sent_list or "state" in wiki_sent_list:
                     new_ent_list.append((ent[0], "COU"))
                 else:
-                    new_ent_list.append((ent[0], random.choice("CIT", "COU")))
-            except wikipedia.exceptions.PageError:
-                new_ent_list.append((ent[0], random.choice("CIT", "COU")))
+                    new_ent_list.append((ent[0], random.choice(["CIT", "COU"])))
+            except (wikipedia.exceptions.PageError,
+                    wikipedia.exceptions.DisambiguationError):
+                new_ent_list.append((ent[0], random.choice(["CIT", "COU"])))
         elif ent[1] == "LOC":
             new_ent_list.append((ent[0], "NAT"))
         elif ent[1] == "WORK_OF_ART":
@@ -100,10 +101,15 @@ def wikification(entities_list):
             if term != "":
                 try:
                     wiki_list.append((word, label, wikipedia.page(term).url))
-                except wikipedia.exceptions.PageError:
+                except (wikipedia.exceptions.PageError,
+                        wikipedia.exceptions.DisambiguationError):
                     # TODO: probably change to a more general exception
                     if term == "New York City":
                         wiki_list.append((word, label, "https://en.wikipedia.org/wiki/New_York_City"))
+                    else:
+                        # TODO: use word ipv term?
+                        term_ = "_".join(nltk.word_tokenize(term))
+                        wiki_list.append((word, label, "https://en.wikipedia.org/wiki/" + term_))
         
     return wiki_list
 
