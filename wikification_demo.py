@@ -12,54 +12,55 @@ lemmatizer = WordNetLemmatizer()
 NER = spacy.load("en_core_web_sm")
 
 def read_file(current):
-    for elem in os.walk(current + "/dev/d0691"):
-        for filename in elem[2]:
+    for ent in os.walk(current+ "/dev"):
+        for elem in os.walk(ent[0]):
+            for filename in elem[2]:
 
-            pos_ent_data_list = []
+                pos_ent_data_list = []
 
-            os.chdir(elem[0])
-            if filename == "en.tok.off.pos":
-                with open(filename, encoding="utf-8") as f1:
-                    data_list = f1.readlines()
+                os.chdir(elem[0])
+                if filename == "en.tok.off.pos":
+                    with open(filename, encoding="utf-8") as f1:
+                        data_list = f1.readlines()
 
-                raw_data = get_raw_file(elem[2])
-                entities_list = ner(raw_data)
-                ani_spo_ent_list = find_ner_bigrams(raw_data)
-                if len(ani_spo_ent_list) != 0:
-                    entities_list += ani_spo_ent_list # list contains (word, tag) tuples
-                gpe_list = tags_correction(entities_list)
+                    raw_data = get_raw_file(elem[2])
+                    entities_list = ner(raw_data)
+                    ani_spo_ent_list = find_ner_bigrams(raw_data)
+                    if len(ani_spo_ent_list) != 0:
+                        entities_list += ani_spo_ent_list # list contains (word, tag) tuples
+                    gpe_list = tags_correction(entities_list)
 
-                ent_wiki_list = wikification(gpe_list) # list contains (word, tag, link) tuples
-                # THIS BITCH EMPTY YEET
-                new_ent_list = split_ner(ent_wiki_list)
+                    ent_wiki_list = wikification(gpe_list) # list contains (word, tag, link) tuples
+                    # THIS BITCH EMPTY YEET
+                    new_ent_list = split_ner(ent_wiki_list)
 
                 
 
-                for line in data_list:
-                    line_list = line.split()
-                    if len(line_list) == 5:
-                        for (word, label, link) in new_ent_list:
-                            ner_list = []
-                            if word == line_list[3]:
-                                ner_list = line_list + [label] + [link]
-                                pos_ent_data_list.append(ner_list)
-                                break
-                        if not ner_list:
-                            # for words that are not recognised by spacy
-                            pos_ent_data_list.append(line_list + ["none"])
-                    else:
-                        # for lines that don't contain word and pos tag
-                        pos_ent_data_list.append(line_list + ["bbb"])
+                    for line in data_list:
+                        line_list = line.split()
+                        if len(line_list) == 5:
+                            for (word, label, link) in new_ent_list:
+                                ner_list = []
+                                if word == line_list[3]:
+                                    ner_list = line_list + [label] + [link]
+                                    pos_ent_data_list.append(ner_list)
+                                    break
+                            if not ner_list:
+                                # for words that are not recognised by spacy
+                                pos_ent_data_list.append(line_list + ["none"])
+                        else:
+                            # for lines that don't contain word and pos tag
+                            pos_ent_data_list.append(line_list + ["bbb"])
 
 
-                checked_pos_ent_data_list = []  
-                for line in pos_ent_data_list:
-                    checked_line = (check_non_name_tags(line))
-                    wiki_line = wikification_2(checked_line)
-                    checked_pos_ent_data_list.append(wiki_line)
+                    checked_pos_ent_data_list = []  
+                    for line in pos_ent_data_list:
+                        checked_line = (check_non_name_tags(line))
+                        wiki_line = wikification_2(checked_line)
+                        checked_pos_ent_data_list.append(wiki_line)
                 
-                for i in checked_pos_ent_data_list:
-                    print(i)
+                    for i in checked_pos_ent_data_list:
+                        print(i)
 
 
 def tags_correction(entities_list):
@@ -121,9 +122,8 @@ def wikification_2(line):
 
     if line[5] == "ANI" or line[5] == "SPO":
         for term in wikipedia.search(line[3], results=1):
-            if term != "":
-                line.append("https://en.wikipedia.org/wiki/" + str(term))
-    
+             if term != "":
+                 line.append("https://en.wikipedia.org/wiki/" + str(term))
     return line
 
 
