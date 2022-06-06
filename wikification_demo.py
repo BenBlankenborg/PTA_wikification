@@ -7,57 +7,57 @@ import wikipedia
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.corpus import wordnet
 import random
+import sys
 lemmatizer = WordNetLemmatizer()
 
 NER = spacy.load("en_core_web_sm")
 
-def read_file(current):
-    for ent in os.walk(current+ "/dev"):
-        for elem in os.walk(ent[0]):
-            for filename in elem[2]:
-                pos_ent_data_list = []
+def read_file(current, filename):
+    for elem in os.walk(current + '/dev/' + filename):
+        for filename in elem[2]:
+            pos_ent_data_list = []
 
-                os.chdir(elem[0])
-                if filename == "en.tok.off.pos":
-                    with open(filename, encoding="utf-8") as f1:
-                        data_list = f1.readlines()
-                    raw_data = get_raw_file(elem[2])
-                    entities_list = ner(raw_data)
-                    ani_spo_ent_list = find_ner_bigrams(raw_data)
-                    if len(ani_spo_ent_list) != 0:
-                        entities_list += ani_spo_ent_list # list contains (word, tag) tuples
-                    gpe_list = tags_correction(entities_list)
-
-
-                    ent_wiki_list = wikification(gpe_list) # list contains (word, tag, link) tuples
-                    new_ent_list = split_ner(ent_wiki_list)
-
-                    for line in data_list:
-                        line_list = line.split()
-                        if len(line_list) == 5:
-                            for (word, label, link) in new_ent_list:
-                                ner_list = []
-                                if word == line_list[3]:
-                                    ner_list = line_list + [label] + [link]
-                                    pos_ent_data_list.append(ner_list)
-                                    break
-                            if not ner_list:
-                                # for words that are not recognised by spacy
-                                pos_ent_data_list.append(line_list + ["none"])
-                        else:
-                            # for lines that don't contain word and pos tag
-                            # TODO: have we ever encountered those lines?
-                            pos_ent_data_list.append(line_list + ["bbb"])
+            os.chdir(elem[0])
+            if filename == "en.tok.off.pos":
+                with open(filename, encoding="utf-8") as f1:
+                    data_list = f1.readlines()
+                raw_data = get_raw_file(elem[2])
+                entities_list = ner(raw_data)
+                ani_spo_ent_list = find_ner_bigrams(raw_data)
+                if len(ani_spo_ent_list) != 0:
+                    entities_list += ani_spo_ent_list # list contains (word, tag) tuples
+                gpe_list = tags_correction(entities_list)
 
 
-                    checked_pos_ent_data_list = []  
-                    for line in pos_ent_data_list:
-                        checked_line = (check_non_name_tags(line))
-                        wiki_line = wikification_2(checked_line)
-                        checked_pos_ent_data_list.append(wiki_line)
+                ent_wiki_list = wikification(gpe_list) # list contains (word, tag, link) tuples
+                new_ent_list = split_ner(ent_wiki_list)
 
-                    for i in checked_pos_ent_data_list:
-                        print(i)
+                for line in data_list:
+                    line_list = line.split()
+                    if len(line_list) == 5:
+                        for (word, label, link) in new_ent_list:
+                            ner_list = []
+                            if word == line_list[3]:
+                                ner_list = line_list + [label] + [link]
+                                pos_ent_data_list.append(ner_list)
+                                break
+                        if not ner_list:
+                            # for words that are not recognised by spacy
+                            pos_ent_data_list.append(line_list + ["none"])
+                    else:
+                        # for lines that don't contain word and pos tag
+                        # TODO: have we ever encountered those lines?
+                        pos_ent_data_list.append(line_list + ["bbb"])
+
+
+                checked_pos_ent_data_list = []  
+                for line in pos_ent_data_list:
+                    checked_line = (check_non_name_tags(line))
+                    wiki_line = wikification_2(checked_line)
+                    checked_pos_ent_data_list.append(wiki_line)
+
+                for i in checked_pos_ent_data_list:
+                    print(i)
 
 
 def tags_correction(entities_list):
@@ -249,9 +249,10 @@ def split_ner(entities_list):
     return new_ent_list
 
 
-def main(): 
+def main():
+    filename = sys.argv[1]
     current = os.getcwd()
-    read_file(current)
+    read_file(current, filename)
 
        
    
