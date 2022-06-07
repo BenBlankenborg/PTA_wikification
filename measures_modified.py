@@ -24,7 +24,7 @@ def get_data(words_list):
             word.append('NI')
         if len(word) < 7:
             # for those without link
-            word.append('No link')
+            word.append('No_link')
         entities_list.append(word)
 
     return entities_list
@@ -46,8 +46,8 @@ def re_classify(wl):
 
 def re_classify_link(word_list):
     new_list = []
-    for word in wl:
-        if word != 'No link':
+    for word in word_list:
+        if word != 'No_link':
              new_list.append('Link')
         else:
             new_list.append(word)
@@ -158,25 +158,34 @@ def main():
     print("The confusion matrix for all entities:\n", con_met)
 
     link_con_met = confusion_matrix(link_list1, link_list2)
-    print("The confusion matrix for all links:\n", link_con_met)
 
+    in_con_met = confusion_matrix(re_classify(tag_list1), re_classify(tag_list2))
+    print(f"The confusion matrix for the interesting entities"
+          f"and non-interesting entities:\n", in_con_met)
 
-    #in_con_met = confusion_matrix(re_classify(new_list[0]), re_classify(new_list[1]))
-    #print(f"The confusion matrix for the interesting entities"
-          #f"and non-interesting entities:\n", in_con_met)
+    bi_link_con_met = confusion_matrix(re_classify_link(link_list1), re_classify_link(link_list2))
 
-    #entities = set('COU CIT NAT PER ORG ENT NS'.split())
+    entities = set(tag_list1) 
 
-    #entities_in = set('NS I'.split())
-    #true_pos, false_neg, false_pos = evaluation_measures(entities, con_met)
-    #print("\nPrecision, recall and f-score for all entities:")
+    entities_in = set('NI I'.split())
+    true_pos, false_neg, false_pos = evaluation_measures(entities, con_met)
+    print("\nPrecision, recall and f-score for all entities:")
+    f_score(entities, true_pos, false_neg, false_pos)
 
-    #f_score(entities, true_pos, false_neg, false_pos)
-    #true_pos_in, false_neg_in, false_pos_in = evaluation_measures(entities_in, in_con_met)
-    #print(f"\nPrecision, recall and f-score for interesting"
-     #     f"(I) vs non-interesting entities (NS):")
-    #f_score(entities_in, true_pos_in, false_neg_in, false_pos_in)
+    true_pos_in, false_neg_in, false_pos_in = evaluation_measures(entities_in, in_con_met)
+    print(f"\nPrecision, recall and f-score for interesting"
+          f"(I) vs non-interesting entities (NS):")
+    f_score(entities_in, true_pos_in, false_neg_in, false_pos_in)
     
+    entities_link = set(link_list1)
+    true_pos_link, false_neg_link, false_pos_link = evaluation_measures(entities_link, link_con_met)
+    print(f"\nPrecision, recall and f-score for all links:")
+    f_score(entities_link, true_pos_link, false_neg_link, false_pos_link)
+
+    entities_bi_link = set('Link No_link'.split())
+    true_pos_bi_link, false_neg_bi_link, false_pos_bi_link = evaluation_measures(entities_bi_link, bi_link_con_met)
+    print(f"\nPrecision, recall and f-socre for links versus non-links:")
+    f_score(entities_bi_link, true_pos_bi_link, false_neg_bi_link, false_pos_bi_link)
 
 if __name__ == '__main__':
     main()
