@@ -18,15 +18,14 @@ def get_data(words_list):
 
     entities_list = []
     for word in words_list:
-        word_list = word.split()
-        if len(word_list) >= 6:
-            # for interesting entities
-            entities_list.append(word_list[5])
-        else:
+        word = word.split()
+        if len(word) < 6:
             # for non-interesting entities
-            entities_list.append("NS")
-    
-    
+            word.append('Non interest')
+        if len(word) < 7:
+            word.append('No link')
+        entities_list.append(word)
+
     return entities_list
     
 def re_classify(wl):
@@ -61,14 +60,14 @@ def read_files(current, head_folder, folder_name):
             if filename == "en.tok.off.pos":
                 found_it = True
                 with open(filename, encoding="utf-8") as f1:
-                    data_list1 = f1.readlines()
+                    data_list1 = get_data(f1.readlines())
 
     for el in os.walk(path + "/temp"):
          for fname in el[2]:
               os.chdir(elem[0])
               if fname == "en.tok.off.pos.ent":
                   with open(fname, encoding="utf-8") as f2:
-                      data_list2 = f2.readlines()
+                      data_list2 = get_data(f2.readlines())
               else:
                   print("Error: no file found. Have you run the wikification code yet?", file=sys.stderr)
                   exit(-1)
@@ -141,16 +140,7 @@ def main():
     folder_name = sys.argv[2]
     current = os.getcwd()
     data_list1, data_list2 = read_files(current, head_folder, folder_name)
-    print(data_list2)
-    new_list = [[], [], []]
-    counter = 0
-    for i in ent_list:
-        for file in i:
-            for ent in file:
-                new_list[counter].append(ent)
-        counter += 1
-    
-    #con_met = confusion_matrix(new_list[0], new_list[1])
+    #con_met = confusion_matrix(data_list1, data_list2)
     #print("The confusion matrix for all entities:\n", con_met)
 
 
