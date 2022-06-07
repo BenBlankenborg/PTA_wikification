@@ -21,8 +21,9 @@ def get_data(words_list):
         word = word.split()
         if len(word) < 6:
             # for non-interesting entities
-            word.append('Non interest')
+            word.append('NI')
         if len(word) < 7:
+            # for those without link
             word.append('No link')
         entities_list.append(word)
 
@@ -36,14 +37,23 @@ def re_classify(wl):
 
     new_list = []
     for word in wl:
-        if word != 'NS':
+        if word != 'NI':
             new_list.append('I')
         else:
             new_list.append(word)
     return new_list
-        
-    
-        
+
+
+def re_classify_link(word_list):
+    new_list = []
+    for word in wl:
+        if word != 'No link':
+             new_list.append('Link')
+        else:
+            new_list.append(word)
+    return new_list
+
+
 def read_files(current, head_folder, folder_name):
 
     """
@@ -57,7 +67,7 @@ def read_files(current, head_folder, folder_name):
     for elem in os.walk(path):
         for filename in elem[2]:
             os.chdir(elem[0])
-            if filename == "en.tok.off.pos":
+            if filename == "en.tok.off.pos.ent":
                 found_it = True
                 with open(filename, encoding="utf-8") as f1:
                     data_list1 = get_data(f1.readlines())
@@ -140,8 +150,15 @@ def main():
     folder_name = sys.argv[2]
     current = os.getcwd()
     data_list1, data_list2 = read_files(current, head_folder, folder_name)
-    #con_met = confusion_matrix(data_list1, data_list2)
-    #print("The confusion matrix for all entities:\n", con_met)
+    tag_list1 = [line[5] for line in data_list1]
+    tag_list2 = [line[5] for line in data_list2]
+    link_list1 = [line[6] for line in data_list1]
+    link_list2 = [line[6] for line in data_list2]
+    con_met = confusion_matrix(tag_list1, tag_list2)
+    print("The confusion matrix for all entities:\n", con_met)
+
+    link_con_met = confusion_matrix(link_list1, link_list2)
+    print("The confusion matrix for all links:\n", link_con_met)
 
 
     #in_con_met = confusion_matrix(re_classify(new_list[0]), re_classify(new_list[1]))
