@@ -7,6 +7,9 @@
 # Organization (ORG), Animal (ANI), Sport (SPO), Entertainment (ENT)
 # and their corresponding Wikipedia links.
 
+# USAGE: $python3 wikification.py <dev/test directory> <direcotory_name>
+# EXAMPLE USAGE: $python3 wikification.py dev d0554
+
 import os
 import spacy
 import nltk
@@ -18,11 +21,12 @@ import sys
 
 
 def read_file(current, head_folder, folder_name):
-    '''
+
+    """
     Takes in the current path name, head_folder name and the child folder name.
     Read the file en.tok.off.pos in this folder
     and returns list of data and a string of raw data.
-    '''
+    """
     found_it = False
 
     for elem in os.walk(current + "/" + head_folder + "/" + folder_name):
@@ -101,6 +105,12 @@ def output(checked_pos_ent_data_list):
     Takes in a checked_pos_ent_data_list and write each list
     of this data list on a seperate line in an en.tok.off.pos.ent file.
     """
+    os.mkdir("temp")
+    current = os.getcwd()
+    if os.path.exists(current + "/temp") == False:
+        os.mkdir("temp")
+    os.chdir(current + "/temp")
+
     with open('en.tok.off.pos.ent', 'w') as out_file:
         sys.stdout = out_file
         for i in checked_pos_ent_data_list:
