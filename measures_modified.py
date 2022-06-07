@@ -76,14 +76,16 @@ def read_files(current, head_folder, folder_name):
     for elem in os.walk(path):
         for filename in elem[2]:
             os.chdir(elem[0])
-            if filename == "en.tok.off.pos":
+            if filename == "en.tok.off.pos.ent":
                 found_it = True
                 with open(filename, encoding="utf-8") as f1:
-                    data_list1 = get_data(f1.readlines())
+                    data_list1 = get_data(f1.readlines()) 
+                    break
+        break
 
     for el in os.walk(path + "/temp"):
          for fname in el[2]:
-              os.chdir(elem[0])
+              os.chdir(el[0])
               if fname == "en.tok.off.pos.ent":
                   with open(fname, encoding="utf-8") as f2:
                       data_list2 = get_data(f2.readlines())
@@ -95,7 +97,6 @@ def read_files(current, head_folder, folder_name):
         print("Error: working directory name is incorrect", file=sys.stderr)
         exit(-1)
     else:
-        print(data_list1)
         print(data_list2)
         return data_list1, data_list2
 
