@@ -1,10 +1,11 @@
 # Filename: measures_modified.py
-# Authors: Katja Kamyshanova, Ben Blankenborg, Ben Blankenborg
+# Authors: Katja Kamyshanova, Ben Blankenborg, Myrthe van der Veen
 # The code was adapted from the the template given by Tim Kreutz 
-# Date: 23-05-2022
-# This program uses NLTK module to compare annotated data located in 3 different
-# directories
+# Date: 07-06-2022
+# This program uses NLTK module to compare annotated data.
 
+# USAGE: $python3 measures_modified.py <dev/test directory> <direcotory_name>
+# EXAMPLE USAGE: $python3 measures_modified.py dev d0554
 
 from collections import Counter
 from nltk.metrics import ConfusionMatrix
