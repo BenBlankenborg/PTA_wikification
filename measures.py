@@ -97,7 +97,6 @@ def read_files(current, head_folder, folder_name):
         print("Error: working directory name is incorrect", file=sys.stderr)
         exit(-1)
     else:
-        print(data_list2)
         return data_list1, data_list2
 
 
