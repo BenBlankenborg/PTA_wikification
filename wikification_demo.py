@@ -23,25 +23,32 @@ def read_file(current, head_folder, folder_name):
     Read the file en.tok.off.pos in this folder
     and returns list of data and a string of raw data.
     '''
+    found_it = False
+
     for elem in os.walk(current + "/" + head_folder + "/" + folder_name):
         for filename in elem[2]:
-
             os.chdir(elem[0])
             if filename == "en.tok.off.pos":
+                found_it = True
                 with open(filename, encoding="utf-8") as f1:
                     data_list = f1.readlines()
                 raw_data = get_raw_file(elem[2])
 
-    return data_list, raw_data
+    if found_it == False:
+        print("Error: working directory name is incorrect", file=sys.stderr)
+        exit(-1)
+    else:
+        return data_list, raw_data
 
 
 def run_wikification(data_list, raw_data):
-    '''
-    Takes in a list of data and a string of raw data
-    and runs the whole wikification system with the separate fuctions
+
+    """
+    Takes a list of data and a string of raw data,
+    runs the whole wikification system with the separate fuctions.
     The function ends with running the output function
     (which write the file to en.tok.off.pos.ent).
-    '''
+    """
 
     pos_ent_data_list = []
 
@@ -74,10 +81,12 @@ def run_wikification(data_list, raw_data):
 
 
 def check_current_list(pos_ent_data_list):
-    '''
-    Takes in a list of already NER tagged data + wikification tagged data and
-    checks this data on the last points and returns a checked_pos_ent_data_list
-    '''
+
+    """
+    Takes a list of already NER + wikification tagged data,
+    finds NER tags and wiki links for entities that were not
+    covered earlier and returns them in a list.
+    """
     checked_pos_ent_data_list = []
     for line in pos_ent_data_list:
         checked_line = (check_non_name_tags(line))
@@ -88,10 +97,10 @@ def check_current_list(pos_ent_data_list):
 
 
 def output(checked_pos_ent_data_list):
-    '''
+    """
     Takes in a checked_pos_ent_data_list and write each list
     of this data list on a seperate line in an en.tok.off.pos.ent file.
-    '''
+    """
     with open('en.tok.off.pos.ent', 'w') as out_file:
         sys.stdout = out_file
         for i in checked_pos_ent_data_list:
@@ -293,7 +302,18 @@ def split_ner(entities_list):
     return new_ent_list
 
 
-def main():
+def main(argv):
+
+    if len(argv) != 3:
+        print("Error: incorrect amount of arguments", file=sys.stderr)
+        exit(-1)
+
+    if sys.argv[1] != "dev" and sys.argv[1] != "test":
+        print("Error: head folder name is incorrect, "
+              "please use 'dev' or 'test' as second console argument",
+              file=sys.stderr)
+        exit(-1)
+
     head_folder = sys.argv[1]
     folder_name = sys.argv[2]
     current = os.getcwd()
@@ -302,4 +322,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv)
