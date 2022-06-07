@@ -105,7 +105,7 @@ def output(checked_pos_ent_data_list):
     Takes in a checked_pos_ent_data_list and write each list
     of this data list on a seperate line in an en.tok.off.pos.ent file.
     """
-    os.mkdir("temp")
+
     current = os.getcwd()
     if os.path.exists(current + "/temp") == False:
         os.mkdir("temp")
