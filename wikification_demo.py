@@ -18,6 +18,11 @@ import sys
 
 
 def read_file(current, head_folder, folder_name):
+    '''
+    Takes in the current path name, head_folder name and the child folder name.
+    Read the file en.tok.off.pos in this folder
+    and returns list of data and a string of raw data.
+    '''
     for elem in os.walk(current + "/" + head_folder + "/" + folder_name):
         for filename in elem[2]:
 
@@ -26,11 +31,17 @@ def read_file(current, head_folder, folder_name):
                 with open(filename, encoding="utf-8") as f1:
                     data_list = f1.readlines()
                 raw_data = get_raw_file(elem[2])
-    
+
     return data_list, raw_data
-                
+
 
 def run_wikification(data_list, raw_data):
+    '''
+    Takes in a list of data and a string of raw data
+    and runs the whole wikification system with the separate fuctions
+    The function ends with running the output function
+    (which write the file to en.tok.off.pos.ent).
+    '''
 
     pos_ent_data_list = []
 
@@ -63,16 +74,24 @@ def run_wikification(data_list, raw_data):
 
 
 def check_current_list(pos_ent_data_list):
+    '''
+    Takes in a list of already NER tagged data + wikification tagged data and
+    checks this data on the last points and returns a checked_pos_ent_data_list
+    '''
     checked_pos_ent_data_list = []
     for line in pos_ent_data_list:
         checked_line = (check_non_name_tags(line))
         wiki_line = wikification_2(checked_line)
         checked_pos_ent_data_list.append(wiki_line)
-    
+
     return checked_pos_ent_data_list
 
 
 def output(checked_pos_ent_data_list):
+    '''
+    Takes in a checked_pos_ent_data_list and write each list
+    of this data list on a seperate line in an en.tok.off.pos.ent file.
+    '''
     with open('en.tok.off.pos.ent', 'w') as out_file:
         sys.stdout = out_file
         for i in checked_pos_ent_data_list:
