@@ -30,7 +30,7 @@ def read_file(current, head_folder, folder_name):
     return data_list, raw_data
                 
 
-def a(data_list, raw_data):
+def run_wikification(data_list, raw_data):
 
     pos_ent_data_list = []
 
@@ -57,16 +57,12 @@ def a(data_list, raw_data):
             if not ner_list:
                 # for words that are not recognised by spacy
                 pos_ent_data_list.append(line_list + [" "])
-        else:
-            # for lines that don't contain word and pos tag
-            # TODO: have we ever encountered those lines?
-            pos_ent_data_list.append(line_list + ["bbb"])
 
-    checked_pos_ent_data_list = o(pos_ent_data_list)
+    checked_pos_ent_data_list = check_current_list(pos_ent_data_list)
     output(checked_pos_ent_data_list)
 
 
-def o(pos_ent_data_list):
+def check_current_list(pos_ent_data_list):
     checked_pos_ent_data_list = []
     for line in pos_ent_data_list:
         checked_line = (check_non_name_tags(line))
@@ -135,7 +131,6 @@ def wikification(entities_list):
                     wiki_list.append((word, label, wikipedia.page(term).url))
                 except (wikipedia.exceptions.PageError,
                         wikipedia.exceptions.DisambiguationError):
-                    # TODO: probably change to a more general exception
                     if term == "New York City":
                         wiki_list.append((word, label,
                                          "https://en.wikipedia.org/wiki/New_York_City"))
@@ -284,7 +279,7 @@ def main():
     folder_name = sys.argv[2]
     current = os.getcwd()
     data_list, raw_data = read_file(current, head_folder, folder_name)
-    a(data_list, raw_data)
+    run_wikification(data_list, raw_data)
 
 
 if __name__ == "__main__":
