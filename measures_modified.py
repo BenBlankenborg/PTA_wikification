@@ -13,8 +13,10 @@ import sys
 
 def get_data(words_list):
 
-    '''Takes a list of lines and adds a NS tag
-    if no annotations info was given'''
+    '''Takes a list of lines, splits them
+    and returns the list with additional tags
+    if it lacks an interesting entity and/or
+    link'''
 
     entities_list = []
     for word in words_list:
@@ -45,6 +47,11 @@ def re_classify(wl):
 
 
 def re_classify_link(word_list):
+
+    '''takes a list of annotated tags and returns a 
+    different list of tags about wether those previous tags
+    had a link or not (Link/No_link)'''
+
     new_list = []
     for word in word_list:
         if word != 'No_link':
@@ -58,8 +65,9 @@ def read_files(current, head_folder, folder_name):
 
     """
     Takes in the current path name, head_folder name and the child folder name.
-    Read the file en.tok.off.pos in this folder
-    and returns list of data
+    Read the file en.tok.off.pos.ent in this folder
+    and the en.tok.off.poss.ent file in the temp folder
+    and returns a list of data for both files
     """
     found_it = False
 
@@ -111,16 +119,16 @@ def evaluation_measures(labels, cm):
                 false_negatives[i] += cm[i, j]
                 false_positives[j] += cm[i, j]
 
-    
+
     return [true_positives, false_negatives, false_positives]
-    
+
 
 def f_score(labels, true_positives, false_negatives, false_positives):
 
     '''takes a list of annotated entities tags and evaluation measures
     and prints precision- , recall- and f-scores for each entity'''
     for i in sorted(labels):
-        
+
         if true_positives[i] == 0:
             fscore = 0
         else:
@@ -176,7 +184,7 @@ def main():
     print(f"\nPrecision, recall and f-score for interesting"
           f"(I) vs non-interesting entities (NS):")
     f_score(entities_in, true_pos_in, false_neg_in, false_pos_in)
-    
+
     entities_link = set(link_list1)
     true_pos_link, false_neg_link, false_pos_link = evaluation_measures(entities_link, link_con_met)
     print(f"\nPrecision, recall and f-score for all links:")
