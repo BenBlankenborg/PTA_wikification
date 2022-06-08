@@ -114,8 +114,7 @@ def evaluation_measures(labels, cm):
     false_negatives = Counter()
     false_positives = Counter()
 
-    for i in labels:
-        print(i)
+    for i in sorted(labels):
         for j in labels:
             if i == j:
                 true_positives[i] += cm[i, j]
@@ -132,8 +131,6 @@ def f_score(labels, true_positives, false_negatives, false_positives):
     '''takes a list of annotated entities tags and evaluation measures
     and prints precision- , recall- and f-scores for each entity'''
     for i in sorted(labels):
-        print(i)
-
         if true_positives[i] == 0:
             fscore = 0
         else:
