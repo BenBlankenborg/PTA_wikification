@@ -10,6 +10,7 @@
 # USAGE: $python3 wikification.py <dev/test directory> <direcotory_name>
 # EXAMPLE USAGE: $python3 wikification.py dev d0554
 
+from distutils.dep_util import newer_group
 import os
 import spacy
 import nltk
@@ -22,8 +23,8 @@ import sys
 
 def read_file(current, head_folder, folder_name):
 
-    """
-    Takes in the current path name, head_folder name and the child folder name.
+    """Takes in the current path name, head_folder name
+    and the child folder name.
     Read the file en.tok.off.pos in this folder
     and returns list of data and a string of raw data.
     """
@@ -38,7 +39,7 @@ def read_file(current, head_folder, folder_name):
                     data_list = f1.readlines()
                 raw_data = get_raw_file(elem[2])
 
-    if found_it == False:
+    if not found_it:
         print("Error: working directory name is incorrect", file=sys.stderr)
         exit(-1)
     else:
@@ -47,8 +48,7 @@ def read_file(current, head_folder, folder_name):
 
 def run_wikification(data_list, raw_data):
 
-    """
-    Takes a list of data and a string of raw data,
+    """Takes a list of data and a string of raw data,
     runs the whole wikification system with the separate fuctions.
     The function ends with running the output function
     (which write the file to en.tok.off.pos.ent).
@@ -86,8 +86,7 @@ def run_wikification(data_list, raw_data):
 
 def check_current_list(pos_ent_data_list):
 
-    """
-    Takes a list of already NER + wikification tagged data,
+    """Takes a list of already NER + wikification tagged data,
     finds NER tags and wiki links for entities that were not
     covered earlier and returns them in a list.
     """
@@ -101,13 +100,12 @@ def check_current_list(pos_ent_data_list):
 
 
 def output(checked_pos_ent_data_list):
-    """
-    Takes in a checked_pos_ent_data_list and write each list
+    """Takes in a checked_pos_ent_data_list and write each list
     of this data list on a seperate line in an en.tok.off.pos.ent file.
     """
 
     current = os.getcwd()
-    if os.path.exists(current + "/temp") == False:
+    if not os.path.exists(current + "/temp"):
         os.mkdir("temp")
     os.chdir(current + "/temp")
 
@@ -119,8 +117,7 @@ def output(checked_pos_ent_data_list):
 
 def tags_correction(entities_list):
 
-    """
-    Takes a list of tuples, goes through each tuples and
+    """Takes a list of tuples, goes through each tuples and
     corrects specific tags values, then returns a list with
     changed tuples.
     """
@@ -136,7 +133,8 @@ def tags_correction(entities_list):
                 elif "country" in wiki_sent_list or "state" in wiki_sent_list:
                     new_ent_list.append((ent[0], "COU"))
                 else:
-                    new_ent_list.append((ent[0], random.choice(["CIT", "COU"])))
+                    new_ent_list.append((ent[0],
+                                         random.choice(["CIT", "COU"])))
             except (wikipedia.exceptions.PageError,
                     wikipedia.exceptions.DisambiguationError):
                 new_ent_list.append((ent[0], random.choice(["CIT", "COU"])))
@@ -154,8 +152,7 @@ def tags_correction(entities_list):
 
 def wikification(entities_list):
 
-    """
-    Takes a list of tuples, goes through each tuple,
+    """Takes a list of tuples, goes through each tuple,
     finds a wikipedia link for each term in a tuple,
     then adds the link into a new tuple and returns
     all tuples in a list.
@@ -171,20 +168,21 @@ def wikification(entities_list):
                         wikipedia.exceptions.DisambiguationError):
                     if term == "New York City":
                         wiki_list.append((word, label,
-                                         "https://en.wikipedia.org/wiki/New_York_City"))
+                                         "https://en.wikipedia.org"
+                                          "/wiki/New_York_City"))
                     else:
                         # TODO: use word ipv term?
                         term_ = "_".join(nltk.word_tokenize(term))
                         wiki_list.append((word, label,
-                                         "https://en.wikipedia.org/wiki/" + term_))
+                                         "https://en.wikipedia.org/wiki/" +
+                                          term_))
 
     return wiki_list
 
 
 def wikification_2(line):
 
-    """
-    This function takes a list and adds a wikipedia
+    """This function takes a list and adds a wikipedia
     link if the list contains one of the NER tags.
     """
     if len(line) > 4:
@@ -197,8 +195,7 @@ def wikification_2(line):
 
 def check_non_name_tags(line):
 
-    """
-    This function takes input of a word and its information
+    """This function takes input of a word and its information
     as formatted previously, and assigns it an ANI or SPO
     tag if the word is an animal or sport.
     """
@@ -217,8 +214,7 @@ def check_non_name_tags(line):
 
 def find_ner_bigrams(raw_text):
 
-    """
-    Takes a string of text, slides it into bigrams,
+    """Takes a string of text, slides it into bigrams,
     searches for specific entities by looking at the
     hypernyms of each bigram and returns a list of all
     found bigrams and their entity tags.
@@ -245,8 +241,7 @@ def find_ner_bigrams(raw_text):
 
 def get_raw_file(file_list):
 
-    """
-    Opens a raw file in the same directory
+    """Opens a raw file in the same directory
     as used .pos file and returns the data as a string.
     """
 
@@ -258,8 +253,7 @@ def get_raw_file(file_list):
 
 def hypernymOf(synset1, synset2):
 
-    """
-    Returns True if synset2 is a hypernym of
+    """Returns True if synset2 is a hypernym of
     synset1, or if they are the same synset.
     Returns False otherwise.
     """
@@ -276,14 +270,13 @@ def hypernymOf(synset1, synset2):
 
 def ner(raw_text):
 
-    """
-    Takes a str of raw text and by using SpaCy returns a list
+    """Takes a str of raw text and by using SpaCy returns a list
     of tuples with words and given to them entity tags.
     """
-    NER = spacy.load("en_core_web_sm")
+    ner_spacy = spacy.load("en_core_web_sm")
 
     tags_list = ["PERSON", "GPE", "LOC", "ORG", "WORK_OF_ART"]
-    text = NER(raw_text)
+    text = ner_spacy(raw_text)
     entities_list = [(word.text, word.label_) for word in text.ents
                      if word.label_ in tags_list]
 
@@ -292,8 +285,7 @@ def ner(raw_text):
 
 def split_ner(entities_list):
 
-    """
-    Takes a list of tuples, goes through each tuple
+    """Takes a list of tuples, goes through each tuple
     and if there are more than 1 word in a tuple tokenizes it
     and returns a list separated tuples with related entity tags.
     """
@@ -318,14 +310,14 @@ def main(argv):
         print("Error: incorrect amount of arguments", file=sys.stderr)
         exit(-1)
 
-    if sys.argv[1] != "dev" and sys.argv[1] != "test":
+    if argv[1] != "dev" and argv[1] != "test":
         print("Error: head folder name is incorrect, "
               "please use 'dev' or 'test' as second console argument",
               file=sys.stderr)
         exit(-1)
 
-    head_folder = sys.argv[1]
-    folder_name = sys.argv[2]
+    head_folder = argv[1]
+    folder_name = argv[2]
     current = os.getcwd()
     data_list, raw_data = read_file(current, head_folder, folder_name)
     run_wikification(data_list, raw_data)
