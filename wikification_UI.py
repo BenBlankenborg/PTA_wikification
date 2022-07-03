@@ -284,11 +284,19 @@ def split_ner(entities_list):
 def main(argv):
     
     st.title("Project Text Analysis Wikificator")
-    st.write("Katja Kamyshanova, Ben Blankenborg, Myrthe van der Veen")
+    st.subheader("Katja Kamyshanova, Ben Blankenborg, Myrthe van der Veen")
     st.write("uitleg")
-    data_list = st.file_uploader("Please upload a .pos file here:", type=["pos"])
-    raw_data = st.file_uploader("Please upload a .raw file here:", type=["raw"])
+    raw_file = st.file_uploader("Please upload a .raw file here:", type=["raw"])
+    data_file = st.file_uploader("Please upload a .pos file here:", type=["pos"])
     
+    if raw_file is not None:
+        stringio = StringIO(raw_file.getvalue().decode("utf-8"))
+        raw_data = stringio.read()
+
+    if data_file is not None:
+        stringio = StringIO(data_file.getvalue().decode("utf-8"))
+        data_list = [line for line in stringio.readlines()]
+
     run_wikification(data_list, raw_data)
 
 
