@@ -90,6 +90,10 @@ def output(checked_pos_ent_data_list):
         sys.stdout = out_file
         for i in checked_pos_ent_data_list:
             st.write(' '.join(i))
+            print(' '.join(i))
+
+    with open('en.tok.off.pos.ent') as f:
+        st.download_button('Download en.tok.off.pos.ent file', f)
 
 
 def tags_correction(entities_list):
@@ -282,26 +286,24 @@ def split_ner(entities_list):
 
 
 def main(argv):
-    
+
     st.title("Project Text Analysis Wikificator")
     st.subheader("Katja Kamyshanova, Ben Blankenborg, Myrthe van der Veen")
     st.write("uitleg")
-    raw_file = st.file_uploader("Please upload a .raw file here:", type=["raw"])
-    data_file = st.file_uploader("Please upload a .pos file here:", type=["pos"])
-    
+    raw_file = st.file_uploader("Please upload a .raw file here:",
+                                type=["raw"])
+    data_file = st.file_uploader("Please upload a .pos file here:",
+                                 type=["pos"])
+
     if raw_file is not None:
-        stringio = StringIO(raw_file.getvalue().decode("utf-8"))
-        raw_data = stringio.read()
+        stringio_raw = StringIO(raw_file.getvalue().decode("utf-8"))
+        raw_data = stringio_raw.read()
 
     if data_file is not None:
-        stringio = StringIO(data_file.getvalue().decode("utf-8"))
-        data_list = [line for line in stringio.readlines()]
+        stringio_data = StringIO(data_file.getvalue().decode("utf-8"))
+        data_list = [line for line in stringio_data.readlines()]
 
     run_wikification(data_list, raw_data)
-
-
-
-
 
 
 if __name__ == "__main__":
