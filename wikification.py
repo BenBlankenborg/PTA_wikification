@@ -21,6 +21,7 @@ import random
 import sys
 import argparse
 
+
 def read_file(current, head_folder, folder_name):
 
     """Takes in the current path name, head_folder name
@@ -306,29 +307,28 @@ def split_ner(entities_list):
 
 def main():
 
-       
     parser = argparse.ArgumentParser(description='Wikify files')
     parser.add_argument('Headfolder',
-                         metavar='headfolder',
-                         type=str,
-                         help='The dev or test directory')
+                        metavar='headfolder',
+                        type=str,
+                        help='The dev or test directory')
     parser.add_argument('Directory',
-                         metavar='directory',
-                         type=str,
-                         help='A directory within dev or test')
+                        metavar='directory',
+                        type=str,
+                        help='A directory within dev or test')
     args = parser.parse_args()
     head_folder = args.Headfolder
     directory = args.Directory
 
     if head_folder != "dev" and head_folder != "test":
-         print("Error: head folder name is incorrect, ",
-               "please use 'dev' or 'test' as second console argument",
-                file=sys.stderr)
-         sys.exit()
+        print("Error: head folder name is incorrect, ",
+              "please use 'dev' or 'test' as second console argument",
+              file=sys.stderr)
+        sys.exit()
 
     if not os.path.isdir(head_folder+'/'+directory):
-        print("Error: directory does not exist, ", 
-              "please make sure to use a directory that\'s in the head folder", 
+        print("Error: directory does not exist, ",
+              "please make sure to use a directory that\'s in the head folder",
               file=sys.stderr)
         sys.exit()
 

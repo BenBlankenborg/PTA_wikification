@@ -88,14 +88,15 @@ def output(checked_pos_ent_data_list):
     os.chdir(current + "/temp")
 
     st.subheader("Wikification output")
-    with open('en.tok.off.pos.ent') as f:
-        st.download_button('Download the output file as .ent', f)
 
     with open('en.tok.off.pos.ent', 'w') as out_file:
         sys.stdout = out_file
         for i in checked_pos_ent_data_list:
             st.write(' '.join(i))
             print(' '.join(i))
+
+    with open('en.tok.off.pos.ent') as f:
+        st.download_button('Download the output file as .ent', f)
 
 
 def tags_correction(entities_list):
