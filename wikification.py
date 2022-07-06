@@ -1,8 +1,8 @@
 # Filename: wikification.py
-# Date: 7-6-2022
+# Date: 06-07-2022
 # Authors: Katja Kamyshanova, Ben Blankenborg, Myrthe van der Veen
 # This program contains a Wikification system.
-# The program produce some annotated data, including the entities:
+# The program produces annotated data, including the entities:
 # Country/State (COU), City/Town (CIT), Natural places (NAT), Person (PER),
 # Organization (ORG), Animal (ANI), Sport (SPO), Entertainment (ENT)
 # and their corresponding Wikipedia links.
