@@ -82,11 +82,6 @@ def output(checked_pos_ent_data_list):
     of this data list on a seperate line in an en.tok.off.pos.ent file.
     """
 
-    current = os.getcwd()
-    if not os.path.exists(current + "/temp"):
-        os.mkdir("temp")
-    os.chdir(current + "/temp")
-
     st.subheader("Wikification output")
 
     with open('en.tok.off.pos.ent', 'w') as out_file:
@@ -95,8 +90,10 @@ def output(checked_pos_ent_data_list):
             st.write(' '.join(i))
             print(' '.join(i))
 
-    with open('en.tok.off.pos.ent') as f:
-        st.download_button('Download the output file as .ent', f)
+    with open('en.tok.off.pos.ent', 'r') as in_file:
+        st.download_button("Download the output file as .ent",
+                            in_file,
+                            file_name="en.tok.off.pos.ent")
 
 
 def tags_correction(entities_list):
