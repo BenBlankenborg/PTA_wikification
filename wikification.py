@@ -19,7 +19,7 @@ from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.corpus import wordnet
 import random
 import sys
-
+import argparse
 
 def read_file(current, head_folder, folder_name):
 
@@ -304,24 +304,38 @@ def split_ner(entities_list):
     return new_ent_list
 
 
-def main(argv):
+def main():
 
-    if len(argv) != 3:
-        print("Error: incorrect amount of arguments", file=sys.stderr)
-        exit(-1)
+       
+    parser = argparse.ArgumentParser(description='Wikify files')
+    parser.add_argument('Headfolder',
+                         metavar='headfolder',
+                         type=str,
+                         help='The dev or test directory')
+    parser.add_argument('Directory',
+                         metavar='directory',
+                         type=str,
+                         help='A directory within dev or test')
+    args = parser.parse_args()
+    head_folder = args.Headfolder
+    directory = args.Directory
 
-    if argv[1] != "dev" and argv[1] != "test":
-        print("Error: head folder name is incorrect, "
-              "please use 'dev' or 'test' as second console argument",
+    if head_folder != "dev" and head_folder != "test":
+         print("Error: head folder name is incorrect, ",
+               "please use 'dev' or 'test' as second console argument",
+                file=sys.stderr)
+         sys.exit()
+
+    if not os.path.isdir(head_folder+'/'+directory):
+        print("Error: directory does not exist, ", 
+              "please make sure to use a directory that\'s in the head folder", 
               file=sys.stderr)
-        exit(-1)
+        sys.exit()
 
-    head_folder = argv[1]
-    folder_name = argv[2]
     current = os.getcwd()
-    data_list, raw_data = read_file(current, head_folder, folder_name)
+    data_list, raw_data = read_file(current, head_folder, directory)
     run_wikification(data_list, raw_data)
 
 
 if __name__ == "__main__":
-    main(sys.argv)
+    main()
