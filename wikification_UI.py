@@ -11,7 +11,6 @@
 
 # USAGE: $ streamlit run wikification_UI.py
 
-import os
 import spacy
 import nltk
 import wikipedia
@@ -91,9 +90,8 @@ def output(checked_pos_ent_data_list):
             print(' '.join(i))
 
     with open('en.tok.off.pos.ent', 'r') as in_file:
-        st.download_button("Download the output file as .ent",
-                            in_file,
-                            file_name="en.tok.off.pos.ent")
+        st.download_button("Download the output file as .ent", in_file,
+                           file_name="en.tok.off.pos.ent")
 
 
 def tags_correction(entities_list):

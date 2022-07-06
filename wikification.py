@@ -10,7 +10,6 @@
 # USAGE: $python3 wikification.py <dev/test directory> <direcotory_name>
 # EXAMPLE USAGE: $python3 wikification.py dev d0554
 
-from distutils.dep_util import newer_group
 import os
 import spacy
 import nltk
