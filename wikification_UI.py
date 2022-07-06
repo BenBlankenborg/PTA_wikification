@@ -1,16 +1,16 @@
-# Filename: wikification.py
-# Date: 7-6-2022
+# Filename: wikification_UI.py
+# Date: 06-07-2022
 # Authors: Katja Kamyshanova, Ben Blankenborg, Myrthe van der Veen
-# This program contains a Wikification system.
-# The program produce some annotated data, including the entities:
-# Country/State (COU), City/Town (CIT), Natural places (NAT), Person (PER),
-# Organization (ORG), Animal (ANI), Sport (SPO), Entertainment (ENT)
-# and their corresponding Wikipedia links.
 
-# USAGE: $python3 wikification.py <dev/test directory> <direcotory_name>
-# EXAMPLE USAGE: $python3 wikification.py dev d0554
+# This program contains a user interface for wikification.py, made with
+# Streamlit. Please open the link the console will provide to work with UI.
 
-from distutils.dep_util import newer_group
+# The original wikification.py takes a .raw and .pos text files as input,
+# finds corresponding named entities if applicable and links to their
+# Wikipedia pages
+
+# USAGE: $ streamlit run wikification_UI.py
+
 import os
 import spacy
 import nltk
@@ -77,6 +77,7 @@ def check_current_list(pos_ent_data_list):
 
 
 def output(checked_pos_ent_data_list):
+
     """Takes in a checked_pos_ent_data_list and write each list
     of this data list on a seperate line in an en.tok.off.pos.ent file.
     """
@@ -86,14 +87,15 @@ def output(checked_pos_ent_data_list):
         os.mkdir("temp")
     os.chdir(current + "/temp")
 
+    st.subheader("Wikification output")
+    with open('en.tok.off.pos.ent') as f:
+        st.download_button('Download the output file as .ent', f)
+
     with open('en.tok.off.pos.ent', 'w') as out_file:
         sys.stdout = out_file
         for i in checked_pos_ent_data_list:
             st.write(' '.join(i))
             print(' '.join(i))
-
-    with open('en.tok.off.pos.ent') as f:
-        st.download_button('Download en.tok.off.pos.ent file', f)
 
 
 def tags_correction(entities_list):
@@ -285,26 +287,35 @@ def split_ner(entities_list):
     return new_ent_list
 
 
-def main(argv):
+def main():
 
     st.title("Project Text Analysis Wikificator")
     st.subheader("Katja Kamyshanova, Ben Blankenborg, Myrthe van der Veen")
-    st.write("uitleg")
+    st.write("This program produces a file containing a list of tokens,"
+             " their corresponding named entities if applicable and links"
+             " to their Wikipedia pages. As input the user must insert a"
+             " .raw and .pos files. It is possible to view and download"
+             "  the output file after the program is complete.")
+
+    st.write("The list of named entities that will be marked by wikificator:")
+    st.markdown("- Country/State (COU) \n - City/Town (CIT) \n - Natural "
+                "places (NAT) \n - Person (PER)\n - Organization (ORG)\n"
+                "- Animal (ANI)\n - Sport (SPO)\n - Entertainment (ENT)")
+
     raw_file = st.file_uploader("Please upload a .raw file here:",
                                 type=["raw"])
     data_file = st.file_uploader("Please upload a .pos file here:",
                                  type=["pos"])
 
-    if raw_file is not None:
+    if raw_file is not None and data_file is not None:
         stringio_raw = StringIO(raw_file.getvalue().decode("utf-8"))
         raw_data = stringio_raw.read()
 
-    if data_file is not None:
         stringio_data = StringIO(data_file.getvalue().decode("utf-8"))
         data_list = [line for line in stringio_data.readlines()]
 
-    run_wikification(data_list, raw_data)
+        run_wikification(data_list, raw_data)
 
 
 if __name__ == "__main__":
-    main(sys.argv)
+    main()
