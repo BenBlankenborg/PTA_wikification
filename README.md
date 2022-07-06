@@ -16,11 +16,11 @@ Before using the programs some additional libraries must be downloaded:
   - Jinja2: `sudo apt-get install -y python-jinja2`
   
 ### Running the programs
-To run the `wikificatior.py` please use the following command:
+To run the `wikification.py` please use the following command:
 ```
 python3 wikification.py <dev/test directory> <direcotory_name>
 ```
-To run the `wikificator_UI.py` please use the following command:
+To run the `wikification_UI.py` please use the following command:
 ```
 streamlit run wikification_UI.py
 ```
